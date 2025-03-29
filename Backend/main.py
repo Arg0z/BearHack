@@ -115,7 +115,6 @@ async def google_callback(request: Request):
             "refresh_token": credentials.refresh_token or "",
             "expires_at": credentials.expiry.timestamp()
         })
-
         # Redirect to your frontend with token info
         return RedirectResponse(f"http://localhost:3000/dashboard?{query}")
 
@@ -124,8 +123,8 @@ async def google_callback(request: Request):
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
     
-@app.get("/emails/receipts")
-def get_receipt_emails(
+@app.get("/receipts/information")
+def get_receipt_information(
     access_token: str = Query(...),
     start: int = Query(...),  # UNIX timestamp
     end: int = Query(...)
