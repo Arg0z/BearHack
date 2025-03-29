@@ -13,7 +13,7 @@ export default function LandingPage() {
                 <h1>Welcome to Horosho Poshla!</h1>
                 <h2>Your personal Mail Accountant.</h2>
             </div>
-            <Button href='https://www.google.com/' variant="contained" color="success" startIcon={<GoogleIcon />}>Login with Google</Button>
+            <Button href='https://127.0.0.1:8000/auth/login' variant="contained" color="success" startIcon={<GoogleIcon />}>Login with Google</Button>
         </>
     )
 }

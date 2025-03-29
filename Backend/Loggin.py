@@ -117,7 +117,7 @@ async def google_callback(request: Request):
         })
 
         # Redirect to your frontend with token info
-        return RedirectResponse(f"http://localhost:3000/dashboard?{query}")
+        return RedirectResponse(f"http://localhost:5173?{query}")
 
     except Exception as e:
         import traceback
