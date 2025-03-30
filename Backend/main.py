@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request, HTTPException
 from fastapi import Query
-from MailAnalyzing import search_receipt_emails
+from MailAnalyzing import extract_receipt_emails
+from AiExtractor import ai_extract_receipt_info
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from google_auth_oauthlib.flow import Flow
@@ -122,18 +123,23 @@ async def google_callback(request: Request):
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
-    
-@app.get("/receipts/information")
+
+@app.get("/emails/receipts")
 def get_receipt_information(
     access_token: str = Query(...),
-    start: int = Query(...),  # UNIX timestamp
+    start: int = Query(...),
     end: int = Query(...)
 ):
     try:
-        results = search_receipt_emails(access_token, start, end)
-        return {"receipts": results}
+        raw_emails = extract_receipt_emails(access_token, start, end)
+        parsed_receipts = []
+
+        for email in raw_emails:
+            parsed = ai_extract_receipt_info(email["body"])
+            parsed["id"] = email["id"]
+            parsed_receipts.append(parsed)
+
+        return {"receipts": parsed_receipts}
+
     except Exception as e:
-        import traceback
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=f"Failed to fetch emails: {str(e)}")
-    
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve receipt data: {str(e)}")
