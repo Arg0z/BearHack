@@ -1,9 +1,9 @@
 from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
-import re
 from datetime import datetime
 import base64
 import html
+import re
 
 def _get_plain_text_from_parts(parts):
     for part in parts:
@@ -31,6 +31,8 @@ def extract_receipt_emails(token: str, start_timestamp: int, end_timestamp: int)
         payload = msg_data.get("payload", {})
         body_text = ""
 
+        internal_ts = int(msg_data.get("internalDate", "0")) // 1000  # Convert ms to seconds
+
         if payload.get("mimeType") == "text/plain":
             data = payload["body"].get("data", "")
             body_text = base64.urlsafe_b64decode(data).decode("utf-8", errors="ignore")
@@ -41,9 +43,11 @@ def extract_receipt_emails(token: str, start_timestamp: int, end_timestamp: int)
             body_text = msg_data.get("snippet", "")
 
         body_text = html.unescape(body_text)
+
         emails.append({
             "id": msg["id"],
-            "body": body_text
+            "body": body_text,
+            "timestamp": internal_ts
         })
 
     return emails

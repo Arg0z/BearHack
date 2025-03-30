@@ -7,12 +7,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 from dotenv import load_dotenv
-import os
 from pathlib import Path
-import uuid
 from google.oauth2 import id_token as google_id_token
 from google.auth.transport import requests as google_requests
 from urllib.parse import urlencode
+from datetime import datetime
+import re
+import uuid
+import os
 # Load environment variables
 load_dotenv(Path("Credentials.env"))
 
@@ -124,6 +126,10 @@ async def google_callback(request: Request):
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
+from fastapi import Query, HTTPException
+from datetime import datetime
+import re
+
 @app.get("/emails/receipts")
 def get_receipt_information(
     access_token: str = Query(...),
@@ -133,10 +139,41 @@ def get_receipt_information(
     try:
         raw_emails = extract_receipt_emails(access_token, start, end)
         parsed_receipts = []
+        seen_keys = set()
 
         for email in raw_emails:
             parsed = ai_extract_receipt_info(email["body"])
             parsed["id"] = email["id"]
+
+            # Use Gmail's internal timestamp if available
+            if "timestamp" not in email:
+                print(f"Missing timestamp for email {email['id']}")
+                continue
+
+            parsed["date"] = datetime.utcfromtimestamp(email["timestamp"]).isoformat() + "Z"
+
+            # Skip if AI extraction returned an error
+            if "error" in parsed:
+                print(f"AI error for email {email['id']}: {parsed['error']}")
+                continue
+
+            # Skip if total is missing, unknown, or effectively zero
+            raw_total = str(parsed["total"])
+            if raw_total == "Unknown":
+                continue
+
+            normalized_total = re.sub(r"[^\d.]", "", raw_total)
+            if normalized_total in {"", "0", "0.0", "0.00"}:
+                continue
+
+            parsed["total"] = normalized_total
+
+            # Skip duplicate receipts using a composite key
+            dedup_key = f"{parsed['company']}|{parsed['total']}|{parsed['date']}"
+            if dedup_key in seen_keys:
+                continue
+
+            seen_keys.add(dedup_key)
             parsed_receipts.append(parsed)
 
         return {"receipts": parsed_receipts}
