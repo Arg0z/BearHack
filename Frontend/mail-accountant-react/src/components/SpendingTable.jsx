@@ -18,14 +18,11 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 import EnhancedTable from './EnhancedTable';
 
-function createData(name, calories, fat, carbs, protein, price) {
+function createData(name, calories, fat) {
   return {
     name,
     calories,
     fat,
-    carbs,
-    protein,
-    price,
     history: [
       {
         date: '2020-01-05',
@@ -45,6 +42,8 @@ function Row(props) {
   const { row } = props;
   const [open, setOpen] = React.useState(false);
 
+  let months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+
   return (
     <React.Fragment>
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
@@ -62,18 +61,16 @@ function Row(props) {
         </TableCell>
         <TableCell align="right">{row.calories}</TableCell>
         <TableCell align="right">{row.fat}</TableCell>
-        <TableCell align="right">{row.carbs}</TableCell>
-        <TableCell align="right">{row.protein}</TableCell>
       </TableRow>
       <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={4}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
               <Table size="small" aria-label="purchases">
                 <TableHead>
                 </TableHead>
                 <TableBody>
-                    <EnhancedTable />
+                    <EnhancedTable month={''} receipts={''}/>
                 </TableBody>
               </Table>
             </Box>
@@ -98,7 +95,6 @@ Row.propTypes = {
     ).isRequired,
     name: PropTypes.string.isRequired,
     price: PropTypes.number.isRequired,
-    protein: PropTypes.number.isRequired,
   }).isRequired,
 };
 
@@ -117,7 +113,7 @@ const rows = [
     createData('December', 5100.00, 'Gifts')
 ];
 
-export default function SpendingTable() {
+export default function SpendingTable({receipts}) {
   return (
     <div style={{ display: 'flex', justifyContent: 'center', margin: 'auto', minWidth: '800px'}}>
         <TableContainer component={Paper} className='SpendingTable'>

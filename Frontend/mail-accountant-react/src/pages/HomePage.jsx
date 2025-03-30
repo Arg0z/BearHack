@@ -9,7 +9,7 @@ export default function HomePage() {
     const email = sessionStorage.getItem("email");
     const [receipts, setReceipts] = useState({});
     const [selectedYear, setSelectedYear] = useState(''); // State to hold the selected year
-
+    
     const fetchReceipts = async () => {
         try {
             // Retrieve access token
@@ -40,13 +40,14 @@ export default function HomePage() {
             });
 
             setReceipts(response.data.receipts);
-            console.log(response);
+            sessionStorage.setItem('receipts', response.data);
+            console.log(response.data);
 
         } catch (error) {
             console.error("Error fetching receipts:", error);
         }
     };
-
+    
     // Callback function to handle year selection
     const handleYearChange = (year) => {
         setSelectedYear(year);
