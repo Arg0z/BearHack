@@ -21,7 +21,7 @@ a {
 
 
 body {
-  margin: 0 1rem;
+  margin: 0;
   display: flex;
 
   min-width: 320px;
