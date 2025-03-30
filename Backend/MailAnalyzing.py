@@ -16,18 +16,23 @@ def _get_plain_text_from_parts(parts):
                 return result
     return ""
 
-def extract_receipt_emails(token: str, start_timestamp: int, end_timestamp: int):
+def extract_receipt_emails(token: str, start_timestamp: int, end_timestamp: int) -> list[dict]:
     creds = Credentials(token=token)
     service = build("gmail", "v1", credentials=creds)
 
-    query = f'receipt after:{start_timestamp} before:{end_timestamp}'
-    response = service.users().messages().list(userId="me", q=query, maxResults=20).execute()
+    query = "receipt"
+    response = service.users().messages().list(userId="me", q=query, maxResults=50).execute()
 
     messages = response.get("messages", [])
-    emails = []
+    filtered_emails = []
 
     for msg in messages:
         msg_data = service.users().messages().get(userId="me", id=msg["id"], format="full").execute()
+        internal_ts = int(msg_data.get("internalDate", "0")) // 1000  # ms to seconds
+
+        if not (start_timestamp <= internal_ts <= end_timestamp):
+            continue
+
         payload = msg_data.get("payload", {})
         body_text = ""
 
@@ -41,9 +46,10 @@ def extract_receipt_emails(token: str, start_timestamp: int, end_timestamp: int)
             body_text = msg_data.get("snippet", "")
 
         body_text = html.unescape(body_text)
-        emails.append({
+
+        filtered_emails.append({
             "id": msg["id"],
             "body": body_text
         })
 
-    return emails
+    return filtered_emails
