@@ -19,7 +19,7 @@ def _get_plain_text_from_parts(parts):
 def extract_receipt_emails(token: str, start_timestamp: int, end_timestamp: int):
     creds = Credentials(token=token)
     service = build("gmail", "v1", credentials=creds)
-    receipt_keywords = ["receipt", "order", "total", "purchase", "subscription", "invoice"]
+    receipt_keywords = ["receipt", "order", "total", "purchase", "amount", "subscription", "invoice"]
     query = f"after:{start_timestamp} before:{end_timestamp}"
     response = service.users().messages().list(userId="me", q=query, maxResults=100).execute()
     messages = response.get("messages", [])
