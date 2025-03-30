@@ -1,14 +1,24 @@
+import './HomePage.css'
+
+import { Button } from "@mui/material";
+import SpendingTable from '../components/SpendingTable'
+import Selector from '../components/Selector';
+
 export default function HomePage() {
-    
-    const params = new URLSearchParams(window.location.search)
-    const accessToken = params.get('access_token')
-    const refreshToken = params.get('refresh_token')
-    const email = params.get('email')
-    
+    const email = sessionStorage.getItem("email");
     return (
-        <>
-            <h1>Home Page</h1>
-            <div>Hello {email} </div>
-        </>
+        <div className='HomePage'>
+            <nav className='Navbar' style={{}}>
+                <h2 style={{display: 'flex', flex: 'inline-flex', placeItems: 'center'}}>
+                    Welcome back,  
+                    <div style={{marginLeft: '0.5rem', color: 'aquamarine'}}>{email.substring(0, email.indexOf("@"))}</div>
+                </h2>
+                <Button variant="contained" color="primary" startIcon={''}>Fetch Latest Data</Button>
+            </nav>
+
+            <Selector/>
+
+            <SpendingTable />
+        </div>
     )
 }
