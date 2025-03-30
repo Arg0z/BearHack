@@ -1,0 +1,13 @@
+.HomePage {
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    width: calc(var(--vw, 1vw) * 100);
+}
+
+.Navbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
