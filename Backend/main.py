@@ -119,7 +119,7 @@ async def google_callback(request: Request):
             "expires_at": credentials.expiry.timestamp()
         })
         # Redirect to your frontend with token info
-        return RedirectResponse(f"https://localhost:5173?{query}")
+        return RedirectResponse(f"http://localhost:5173?{query}")
 
     except Exception as e:
         import traceback

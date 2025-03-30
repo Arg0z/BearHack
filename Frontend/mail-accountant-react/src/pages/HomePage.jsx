@@ -7,7 +7,7 @@ import api from '../api.js'; // Assuming you have an axios instance set up here
 
 export default function HomePage() {
     const email = sessionStorage.getItem("email");
-    const [receipts, setReceipts] = useState({});
+    const [receipts, setReceipts] = useState([]);
     const [selectedYear, setSelectedYear] = useState(''); // State to hold the selected year
     
     const fetchReceipts = async () => {
@@ -23,12 +23,14 @@ export default function HomePage() {
             // Calculate start and end dates for the API call
             const currentDate = new Date();
             const endDateTimestamp = Math.floor(currentDate.getTime() / 1000); // Current date in seconds
-            console.log("end date: " + endDateTimestamp)
 
             const oneMonthAgoDate = new Date();
             oneMonthAgoDate.setMonth(currentDate.getMonth() - 1);
             const startDateTimestamp = Math.floor(oneMonthAgoDate.getTime() / 1000); // One month ago in seconds
+
             console.log("start date: " + startDateTimestamp);
+            console.log("end date: " + endDateTimestamp)
+            console.log("Fetching receipts from your emails...");
 
             // Make the API call with start and end dates
             const response = await api.get('/emails/receipts', {
@@ -40,9 +42,9 @@ export default function HomePage() {
             });
 
             setReceipts(response.data.receipts);
-            sessionStorage.setItem('receipts', response.data);
-            console.log(response.data);
-
+            // sessionStorage.setItem('receipts', response.data);
+            
+            console.log("Fetched data: ", response.data);
         } catch (error) {
             console.error("Error fetching receipts:", error);
         }
@@ -96,7 +98,7 @@ export default function HomePage() {
                     Fetch Latest Data
                 </Button>
             </div>
-
+            {console.log("Home Page receipts: ", receipts)}
             <SpendingTable receipts={receipts} /> {/* Pass receipts to SpendingTable */}
         </div>
     );
