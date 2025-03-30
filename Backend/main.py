@@ -143,27 +143,29 @@ def get_receipt_information(
 
         for email in raw_emails:
             parsed = ai_extract_receipt_info(email["body"])
-            parsed["id"] = email["id"]
-            parsed["date"] = datetime.utcfromtimestamp(email["timestamp"]).isoformat() + "Z"
 
             if "error" in parsed:
                 continue
 
-            if not all(parsed.get(f) for f in ["company", "total", "category"]):
+            required_fields = {"company", "total", "date", "category"}
+            if not required_fields.issubset(parsed):
                 continue
 
             total_str = str(parsed["total"]).replace("$", "").replace(",", "").strip()
-            if total_str.lower() in {"0", "0.00", "0,00", "unknown", "n/a"}:
+            try:
+                if float(total_str) <= 0:
+                    continue
+            except ValueError:
                 continue
 
-            date_key = parsed["date"][:10]
+            parsed["id"] = email["id"]
+            parsed["date"] = datetime.utcfromtimestamp(email["timestamp"]).isoformat()
 
-            dedup_key = f"{parsed['company'].lower()}|{total_str}|{date_key}"
+            dedup_key = f"{parsed['company']}|{parsed['total']}|{parsed['date']}"
             if dedup_key in seen_keys:
                 continue
-
             seen_keys.add(dedup_key)
-            parsed["total"] = total_str
+
             parsed_receipts.append(parsed)
 
         return {"receipts": parsed_receipts}
