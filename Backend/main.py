@@ -153,7 +153,7 @@ def get_receipt_information(
                 continue
 
             total_str = str(parsed["total"]).replace("$", "").replace(",", "").strip()
-            if total_str.lower() in {"0", "0.00", "0,00", "unknown"}:
+            if total_str.lower() in {"0", "0.00", "0,00", "unknown", "n/a"}:
                 continue
 
             date_key = parsed["date"][:10]
