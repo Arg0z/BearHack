@@ -20,9 +20,9 @@ You are a strict JSON API. You must only return a valid JSON object with the fol
 
 No text, no Markdown, no explanation. Just pure JSON.
 
-EMAIL:
-{email_text}
-"""
+    EMAIL:
+    {email_text}
+    """
     try:
         response = model.generate_content(prompt)
         content = response.text.strip()

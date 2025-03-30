@@ -23,15 +23,15 @@ export default function HomePage() {
             // Calculate start and end dates for the API call
             const currentDate = new Date();
             const endDateTimestamp = Math.floor(currentDate.getTime() / 1000); // Current date in seconds
-            console.log(endDateTimestamp)
+            console.log("end date: " + endDateTimestamp)
 
-            const oneYearAgoDate = new Date();
-            oneYearAgoDate.setFullYear(currentDate.getFullYear() - 1);
-            const startDateTimestamp = Math.floor(oneYearAgoDate.getTime() / 1000); // One year ago in seconds
-            console.log(startDateTimestamp)
+            const oneMonthAgoDate = new Date();
+            oneMonthAgoDate.setMonth(currentDate.getMonth() - 1);
+            const startDateTimestamp = Math.floor(oneMonthAgoDate.getTime() / 1000); // One month ago in seconds
+            console.log("start date: " + startDateTimestamp);
 
             // Make the API call with start and end dates
-            const response = await api.get('/receipts/information', {
+            const response = await api.get('/emails/receipts', {
                 params: {
                     access_token: authToken,
                     start: startDateTimestamp,
