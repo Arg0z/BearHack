@@ -13,7 +13,7 @@ export default function LandingPage() {
                 onError={() => console.log("Login failed.")}/> */}
             <div>
                 <h1>Welcome to Horosho Poshla!</h1>
-                <h3>Your personal Mail Accountant.</h3>
+                <h3>Your personal Email AI Accountant.</h3>
             </div>
             <Button href='https://127.0.0.1:8000/auth/login' variant="contained" color="success" startIcon={<GoogleIcon />}>Login with Google</Button>
         </div>
