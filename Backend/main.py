@@ -144,36 +144,26 @@ def get_receipt_information(
         for email in raw_emails:
             parsed = ai_extract_receipt_info(email["body"])
             parsed["id"] = email["id"]
-
-            # Use Gmail's internal timestamp if available
-            if "timestamp" not in email:
-                print(f"Missing timestamp for email {email['id']}")
-                continue
-
             parsed["date"] = datetime.utcfromtimestamp(email["timestamp"]).isoformat() + "Z"
 
-            # Skip if AI extraction returned an error
             if "error" in parsed:
-                print(f"AI error for email {email['id']}: {parsed['error']}")
                 continue
 
-            # Skip if total is missing, unknown, or effectively zero
-            raw_total = str(parsed["total"])
-            if raw_total == "Unknown":
+            if not all(parsed.get(f) for f in ["company", "total", "category"]):
                 continue
 
-            normalized_total = re.sub(r"[^\d.]", "", raw_total)
-            if normalized_total in {"", "0", "0.0", "0.00"}:
+            total_str = str(parsed["total"]).replace("$", "").replace(",", "").strip()
+            if total_str.lower() in {"0", "0.00", "0,00", "unknown"}:
                 continue
 
-            parsed["total"] = normalized_total
+            date_key = parsed["date"][:10]
 
-            # Skip duplicate receipts using a composite key
-            dedup_key = f"{parsed['company']}|{parsed['total']}|{parsed['date']}"
+            dedup_key = f"{parsed['company'].lower()}|{total_str}|{date_key}"
             if dedup_key in seen_keys:
                 continue
 
             seen_keys.add(dedup_key)
+            parsed["total"] = total_str
             parsed_receipts.append(parsed)
 
         return {"receipts": parsed_receipts}

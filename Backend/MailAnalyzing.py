@@ -19,10 +19,9 @@ def _get_plain_text_from_parts(parts):
 def extract_receipt_emails(token: str, start_timestamp: int, end_timestamp: int):
     creds = Credentials(token=token)
     service = build("gmail", "v1", credentials=creds)
-
-    query = f'receipt after:{start_timestamp} before:{end_timestamp}'
-    response = service.users().messages().list(userId="me", q=query, maxResults=20).execute()
-
+    receipt_keywords = ["receipt", "order", "total", "purchase", "amount", "payment", "subscription", "invoice"]
+    query = f"after:{start_timestamp} before:{end_timestamp}"
+    response = service.users().messages().list(userId="me", q=query, maxResults=100).execute()
     messages = response.get("messages", [])
     emails = []
 
@@ -31,7 +30,7 @@ def extract_receipt_emails(token: str, start_timestamp: int, end_timestamp: int)
         payload = msg_data.get("payload", {})
         body_text = ""
 
-        internal_ts = int(msg_data.get("internalDate", "0")) // 1000  # Convert ms to seconds
+        internal_ts = int(msg_data.get("internalDate", "0")) // 1000
 
         if payload.get("mimeType") == "text/plain":
             data = payload["body"].get("data", "")
@@ -43,6 +42,9 @@ def extract_receipt_emails(token: str, start_timestamp: int, end_timestamp: int)
             body_text = msg_data.get("snippet", "")
 
         body_text = html.unescape(body_text)
+
+        if not any(keyword in body_text.lower() for keyword in receipt_keywords):
+            continue
 
         emails.append({
             "id": msg["id"],

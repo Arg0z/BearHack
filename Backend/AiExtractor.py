@@ -15,7 +15,6 @@ def ai_extract_receipt_info(email_text: str) -> dict:
 You are a strict JSON API. You must only return a valid JSON object with the following keys:
 - company: string
 - total: string
-- date: string in YYYY-MM-DD
 - category: string
 
 No text, no Markdown, no explanation. Just pure JSON.
