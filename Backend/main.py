@@ -133,20 +133,10 @@ def get_receipt_information(
     try:
         raw_emails = extract_receipt_emails(access_token, start, end)
         parsed_receipts = []
-        seen_keys = set()
 
         for email in raw_emails:
             parsed = ai_extract_receipt_info(email["body"])
             parsed["id"] = email["id"]
-            total = parsed.get("total", "").replace("$", "").strip()
-
-            if not total or total in {"0", "0.00", "0,00", "$0.00", "$0"}:
-                continue
-
-            dedup_key = f"{parsed.get('company')}|{parsed.get('total')}|{parsed.get('date')}"
-            if dedup_key in seen_keys:
-                continue
-            seen_keys.add(dedup_key)
             parsed_receipts.append(parsed)
 
         return {"receipts": parsed_receipts}
